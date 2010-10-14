@@ -6,6 +6,8 @@
 import os
 import re
 import ConfigParser
+from email.parser import Parser
+from email.header import decode_header
 
 def loadFolders(folders):
     # parse specified maildir folders and sort them
@@ -27,7 +29,13 @@ def scanNew(folders):
             continue
         dir = os.listdir(j)
         for k in dir:
-            print "Found message", k
+            f = open(j + '/' + k, 'r')
+            msg = f.read()
+            f.close()
+            headers = Parser().parsestr(msg)
+            print "New msg"
+            print "From:", decode_header(headers['from'])[0][0]
+            print "Subject:", decode_header(headers['subject'])[0][0]
 
 def main():
     path = os.path.expanduser("~/.maildir-notify.conf")
