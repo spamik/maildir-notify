@@ -1,10 +1,10 @@
 # desktop file for Gnome
 
 [Desktop Entry]
-Name=Ubuntu maildir notify
+Name=Maildir notify
 Comment=A notifier for new emails in local maildir
 Exec=/usr/bin/maildir-notify.py
-Icon=evolution.xpm
+Icon=maildir-notify.xpm
 Terminal=false
 Type=Application
 Categories=Network;
