@@ -5,9 +5,21 @@
 
 import os
 import re
+import time
 import ConfigParser
 from email.parser import Parser
 from email.header import decode_header
+import indicate
+import gobject
+import gtk
+
+active_msg = []
+
+def serverDisplay():
+	print "server display"
+
+def menuDisplay():
+	print "menu display"
 
 def loadFolders(folders):
 	# parse specified maildir folders and sort them
@@ -21,6 +33,13 @@ def loadFolders(folders):
 	return res
 
 def scanNew(folders):
+	# delete current items
+	global active_msg
+	print "length", len(active_msg)
+	for i in active_msg:
+		print "del"
+		i.hide()
+	active_msg = []
 	# find new messages in folders
 	for i, j in folders:
 		print "Scanning folder", i
@@ -29,13 +48,29 @@ def scanNew(folders):
 			continue
 		dir = os.listdir(j)
 		for k in dir:
+			print "found msg"
 			f = open(j + '/' + k, 'r')
 			msg = f.read()
 			f.close()
 			headers = Parser().parsestr(msg)
-			print "New msg"
-			print "From:", decode_header(headers['from'])[0][0]
-			print "Subject:", decode_header(headers['subject'])[0][0]
+			sender = decode_header(headers['from'])[0]
+			if(sender[1]):
+				sender = unicode(sender[0], sender[1])
+			else:
+				sender = sender[0]
+			subject = decode_header(headers['subject'])[0]
+			if(subject[1]):
+				subject = unicode(subject[0], subject[1])
+			else:
+				subject = subject[0]
+			label = subject + ' (' + sender + ')'
+			indicator = indicate.Indicator()
+			indicator.set_property('draw-attention', 'true')
+			indicator.set_property('subtype', 'mail')
+			indicator.set_property('name', label)
+			indicator.show()
+			active_msg.append(indicator)
+	return True
 			
 def main():
 	path = os.path.expanduser("~/.maildir-notify.conf")
@@ -50,7 +85,14 @@ def main():
 		print "Please edit your config file first."
 		return
 	folders = loadFolders(cfg.items('maildir_folders'))
-	scanNew(folders)
+	# notification server
+	server = indicate.indicate_server_ref_default()
+	server.set_type('message.mail')
+	server.set_desktop_file('/usr/share/applications/ubuntu-maildir-notify.desktop')
+	server.connect("server-display", serverDisplay)
+	server.show()
+	# run periodic check
+	gobject.timeout_add_seconds(5, scanNew, folders)
+	gtk.main()
 
 main()
-
