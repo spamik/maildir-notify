@@ -4,7 +4,7 @@
 Name=Ubuntu maildir notify
 Comment=A notifier for new emails in local maildir
 Exec=/usr/bin/maildir-notify.py
-# Icon=/usr/share/
+Icon=/usr/share/icons/hicolor/16x16/apps/evolution-mail.png
 Terminal=false
 Type=Application
 Categories=Network;

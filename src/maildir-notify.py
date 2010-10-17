@@ -15,12 +15,6 @@ import gtk
 
 active_msg = []
 
-def serverDisplay():
-	print "server display"
-
-def menuDisplay():
-	print "menu display"
-
 def loadFolders(folders):
 	# parse specified maildir folders and sort them
 	res = []
@@ -29,7 +23,7 @@ def loadFolders(folders):
 		m = p.match(i)
 		if(m):
 			res.append((m.group('num'), os.path.expanduser(j) + '/new'))
-	res.sort(key = lambda x: x[0])
+	res.sort(reverse = True, key = lambda x: x[0])
 	return res
 
 def scanNew(folders):
@@ -46,6 +40,7 @@ def scanNew(folders):
 		if(not os.path.isdir(j)):
 			print "Folder num", i, "is not a valid maildir folder."
 			continue
+		dirname = j.split('/')[-2].split('.')[-1]
 		dir = os.listdir(j)
 		for k in dir:
 			print "found msg"
@@ -63,7 +58,7 @@ def scanNew(folders):
 				subject = unicode(subject[0], subject[1])
 			else:
 				subject = subject[0]
-			label = subject + ' (' + sender + ')'
+			label = '[' + dirname + '] ' + subject + ' (' + sender + ')'
 			indicator = indicate.Indicator()
 			indicator.set_property('draw-attention', 'true')
 			indicator.set_property('subtype', 'mail')
@@ -89,8 +84,6 @@ def main():
 	server = indicate.indicate_server_ref_default()
 	server.set_type('message.mail')
 	server.set_desktop_file('/usr/share/applications/ubuntu-maildir-notify.desktop')
-	server.connect("server-display", serverDisplay)
-	server.show()
 	# run periodic check
 	gobject.timeout_add_seconds(5, scanNew, folders)
 	gtk.main()
