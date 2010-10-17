@@ -29,21 +29,17 @@ def loadFolders(folders):
 def scanNew(folders):
 	# delete current items
 	global active_msg
-	print "length", len(active_msg)
 	for i in active_msg:
-		print "del"
 		i.hide()
 	active_msg = []
 	# find new messages in folders
 	for i, j in folders:
-		print "Scanning folder", i
 		if(not os.path.isdir(j)):
 			print "Folder num", i, "is not a valid maildir folder."
 			continue
 		dirname = j.split('/')[-2].split('.')[-1]
 		dir = os.listdir(j)
 		for k in dir:
-			print "found msg"
 			f = open(j + '/' + k, 'r')
 			msg = f.read()
 			f.close()
@@ -84,7 +80,6 @@ def main():
 		check_interval = int(cfg.get('global', 'check_interval'))
 	except ConfigParser.NoSectionError, ConfigParser.NoOptionError:
 		check_interval = 15
-	print "check interval", check_interval
 	# notification server
 	server = indicate.indicate_server_ref_default()
 	server.set_type('message.mail')
