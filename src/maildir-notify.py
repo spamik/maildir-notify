@@ -80,12 +80,17 @@ def main():
 		print "Please edit your config file first."
 		return
 	folders = loadFolders(cfg.items('maildir_folders'))
+	try:
+		check_interval = int(cfg.get('global', 'check_interval'))
+	except ConfigParser.NoSectionError, ConfigParser.NoOptionError:
+		check_interval = 15
+	print "check interval", check_interval
 	# notification server
 	server = indicate.indicate_server_ref_default()
 	server.set_type('message.mail')
 	server.set_desktop_file('/usr/share/applications/ubuntu-maildir-notify.desktop')
 	# run periodic check
-	gobject.timeout_add_seconds(5, scanNew, folders)
+	gobject.timeout_add_seconds(60*check_interval, scanNew, folders)
 	gtk.main()
 
 main()
