@@ -84,6 +84,7 @@ def main():
 	server = indicate.indicate_server_ref_default()
 	server.set_type('message.mail')
 	server.set_desktop_file('/usr/share/applications/ubuntu-maildir-notify.desktop')
+	server.show()
 	# run periodic check
 	gobject.timeout_add_seconds(60*check_interval, scanNew, folders)
 	gtk.main()
