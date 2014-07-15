@@ -53,28 +53,31 @@ def scanNew(folders, mmapp):
             continue
         dirname = j.split('/')[-2].split('.')[-1]
         dir = os.listdir(j)
-        for k in dir:
-            f = open(j + '/' + k, 'r')
-            msg = f.read()
-            f.close()
-            headers = Parser().parsestr(msg)
-            sender = decode_header(headers['from'])[0]
-            if(sender[1]):
-                sender = unicode(sender[0], sender[1])
-            else:
-                sender = sender[0]
-            subject = decode_header(headers['subject'])[0]
-            if(subject[1]):
-                subject = unicode(subject[0], subject[1])
-            else:
-                subject = subject[0]
-            label = '[' + dirname + '] ' + subject + ' (' + sender + ')'
-            #mmapp.append_source_with_time("inbox2", None, "Inbox", 0)
-            try:
-                mmapp.append_source_with_count("inbox", None, "Inbox", 3)
-            except:
-                print "still unread"
-            mmapp.draw_attention ("inbox")
+        if not dir and mmapp.has_source(dirname):
+            mmapp.remove_source(dirname)
+        else:
+            if not mmapp.has_source(dirname):
+                mmapp.append_source_with_count(dirname, None, dirname, len(dir))
+                mmapp.draw_attention(dirname)
+            for k in dir:
+                print dirname
+                f = open(j + '/' + k, 'r')
+                msg = f.read()
+                f.close()
+                headers = Parser().parsestr(msg)
+                sender = decode_header(headers['from'])[0]
+                if(sender[1]):
+                    sender = unicode(sender[0], sender[1])
+                else:
+                    sender = sender[0]
+                subject = decode_header(headers['subject'])[0]
+                if(subject[1]):
+                    subject = unicode(subject[0], subject[1])
+                else:
+                    subject = subject[0]
+                label = '[' + dirname + '] ' + subject + ' (' + sender + ')'
+                #mmapp.append_source_with_time("inbox2", None, "Inbox", 0)
+                #self.mmapp.remove_source(str(cid))
 
     return True
 def source_activated(mmapp, source_id):
@@ -104,7 +107,7 @@ def main():
     #server.show()
     # run periodic check
 
-    mmapp = MessagingMenu.App(desktop_id='thunderbird.desktop')
+    mmapp = MessagingMenu.App(desktop_id='ubuntu-maildir-notify.desktop')
     mmapp.register()
     mmapp.connect('activate-source', source_activated)
 
